@@ -21,6 +21,34 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+async function run(){
+    try{
+        const catagoriesCollection = client.db('resale-Bike').collection('catagories');
+        const usersCollection = client.db('resale-Bike').collection('users');
+
+        // catagories
+
+        app.get('/catagories', async (req,res)=>{
+            const query = {};
+            const result = await catagoriesCollection.find(query).toArray();
+            res.send(result)
+        })
+        app.get('/catagory/:brand', async(req,res)=>{
+            const brand = req.params.brand;
+            console.log(brand)
+            res.send({status: 'success'})
+        })
+        app.post('/users', async(req,res)=>{
+            const user = req.body;
+            const results = await usersCollection.insertOne(user)
+            res.send(results)
+        })
+    }
+    finally{
+
+    }
+}
+run().catch(err=> console.log(err))
 
 
 app.get("/", (req, res) => {
