@@ -24,6 +24,7 @@ const client = new MongoClient(uri, {
 async function run(){
     try{
         const catagoriesCollection = client.db('resale-Bike').collection('catagories');
+        const catagoriesProductCollection = client.db('resale-Bike').collection('catagoriesProducts');
         const usersCollection = client.db('resale-Bike').collection('users');
 
         // catagories
@@ -33,15 +34,27 @@ async function run(){
             const result = await catagoriesCollection.find(query).toArray();
             res.send(result)
         })
-        app.get('/catagory/:brand', async(req,res)=>{
-            const brand = req.params.brand;
-            console.log(brand)
+        app.get('/catagory/:id', async(req,res)=>{
+            const id = req.params.id;
+            console.log(id)
             res.send({status: 'success'})
         })
         app.post('/users', async(req,res)=>{
             const user = req.body;
             const results = await usersCollection.insertOne(user)
             res.send(results)
+        })
+
+        // catagory product part
+        app.post('/catagoriesProducts', async(req,res)=>{
+            const catagoriesProducts = req.body;
+            const result = await catagoriesProductCollection.insertOne(catagoriesProducts)
+            res.send(result);
+        })
+        app.get('/brandCatagories', async(req,res)=>{
+            const query = {};
+            const result = await catagoriesCollection.find(query).toArray();
+            res.send(result);
         })
     }
     finally{
