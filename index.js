@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 4000;
 require("dotenv").config();
@@ -58,12 +58,32 @@ async function run(){
             const result = await catagoriesCollection.find(query).toArray();
             res.send(result);
         })
+        // my product section 
+
+        app.get('/myproducts', async(req,res)=>{
+            const query = {};
+            const result = await catagoriesProductCollection.find(query).toArray();
+            res.send(result)
+        })
+
 
         // modal bookings
         app.post('/bookings', async(req,res)=>{
             const bookings = req.body;
             // console.log(bookings);
             const result = await bookingsCollection.insertOne(bookings)
+            res.send(result)
+        })
+        app.put('/productStatusUpdate/:id',async(req,res)=>{
+            const id = req.params.id;
+            const filter = {_id: ObjectId(id)};
+            const option = {upsert: true}
+            const updateDoc = {
+                $set: {
+                    status: 'Sold'
+                }
+            }
+            const result = await catagoriesProductCollection.updateOne(filter,updateDoc,option)
             res.send(result)
         })
     }
