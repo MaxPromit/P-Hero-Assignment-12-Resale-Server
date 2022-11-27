@@ -26,6 +26,7 @@ async function run(){
         const catagoriesCollection = client.db('resale-Bike').collection('catagories');
         const catagoriesProductCollection = client.db('resale-Bike').collection('catagoriesProducts');
         const usersCollection = client.db('resale-Bike').collection('users');
+        const bookingsCollection = client.db('resale-Bike').collection('bookings');
 
         // catagories
 
@@ -36,8 +37,9 @@ async function run(){
         })
         app.get('/catagory/:id', async(req,res)=>{
             const id = req.params.id;
-            console.log(id)
-            res.send({status: 'success'})
+            const query = {catagoryId:(id)}
+            const result = await catagoriesProductCollection.find(query).toArray()
+            res.send(result)
         })
         app.post('/users', async(req,res)=>{
             const user = req.body;
@@ -55,6 +57,14 @@ async function run(){
             const query = {};
             const result = await catagoriesCollection.find(query).toArray();
             res.send(result);
+        })
+
+        // modal bookings
+        app.post('/bookings', async(req,res)=>{
+            const bookings = req.body;
+            // console.log(bookings);
+            const result = await bookingsCollection.insertOne(bookings)
+            res.send(result)
         })
     }
     finally{
