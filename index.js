@@ -61,7 +61,8 @@ async function run(){
         // my product section 
 
         app.get('/myproducts', async(req,res)=>{
-            const query = {};
+            const email = req.query.email;
+            const query = {email}
             const result = await catagoriesProductCollection.find(query).toArray();
             res.send(result)
         })
