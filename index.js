@@ -4,6 +4,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 4000;
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 
 // middlewear
 
@@ -27,7 +28,8 @@ async function run(){
         const catagoriesProductCollection = client.db('resale-Bike').collection('catagoriesProducts');
         const usersCollection = client.db('resale-Bike').collection('users');
         const bookingsCollection = client.db('resale-Bike').collection('bookings');
-
+        const wishlistCollection = client.db('resale-Bike').collection('wishlist');
+        const paymentCollection = client.db('resale-Bike').collection('payments')
         // catagories
 
         app.get('/catagories', async (req,res)=>{
@@ -94,6 +96,27 @@ async function run(){
             res.send(result)
         })
 
+        // wishlist
+
+        app.get('/wishlist/:id',async(req,res)=>{
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await catagoriesProductCollection.find(query).toArray()
+            res.send(result)
+        })
+        app.post('/wishlist', async(req,res)=>{
+            const info = req.body;
+            const query = {info};
+            const result = await wishlistCollection.insertOne(query);
+            res.send(result)
+            
+        })
+        app.get('/allwishlist',async(req,res)=>{
+            const query= {};
+            const result = await wishlistCollection.find(query).toArray()
+            res.send(result)
+        })
+
         // catagory product part
         app.post('/catagoriesProducts', async(req,res)=>{
             const catagoriesProducts = req.body;
@@ -142,6 +165,54 @@ async function run(){
             const result = await catagoriesProductCollection.updateOne(filter,updateDoc,option)
             res.send(result)
         })
+
+        // Payment
+        app.get('/allbookings', async(req,res)=>{
+            const query = {};
+            const result = await bookingsCollection.find(query).toArray()
+            res.send(result)
+        })
+        app.get('/bookings/:id', async(req,res)=>{
+            const id = req.params.id;
+            console.log('bok',id)
+            const query = {_id: ObjectId(id)};
+            const bookings = await bookingsCollection.findOne(query);
+            res.send(bookings)
+        })
+
+        app.post('/create-payment-intent', async(req,res)=>{
+            const booking = req.body;
+            const price = booking.newprice;
+            const amount = parseInt(price * 100);
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                currency: 'usd',
+                amount: amount,
+                "payment_method_types": [
+                    "card"
+                ]
+            });
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            })
+        })
+
+        app.post('/payments', async(req,res)=>{
+            const payment = req.body;
+            const result = await paymentCollection.insertOne(payment);
+            const id = payment.bookingId
+            const filter = {_id: ObjectId(id)}
+            const updatedDoc = {
+                $set:{
+                    paid: true,
+                    transactionId: payment.transactionId
+                }
+            }
+            const updatedResult = await bookingsCollection.updateOne(filter,updatedDoc)
+            res.send(result)
+        })
+
+
         // advirtised
         app.put('/advirtised/:id', async(req,res)=>{
             const id = req.params.id;
