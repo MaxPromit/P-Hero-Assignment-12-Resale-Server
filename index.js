@@ -82,6 +82,22 @@ async function run(){
             const result = await usersCollection.deleteOne(filter)
             res.send(result)
         })
+        // verify seller
+
+        app.put('/sellerverify/:email', async(req,res)=>{
+            const email = req.params.email;
+            const filter = {email: email};
+            const option = {upsert: true}
+            const updateDoc = {
+                $set: {
+                    sellerStatus: 'Verified'
+                }
+            }
+            const result = await catagoriesProductCollection.updateOne(filter,updateDoc,option)
+            res.send(result)
+        })
+
+
         // allbuyers
         app.get('/allbuyers', async(req,res)=>{
             const query = {role: 'Buyer'}
