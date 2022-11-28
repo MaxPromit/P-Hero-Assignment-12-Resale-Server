@@ -66,6 +66,34 @@ async function run(){
             res.send({isBuyer : user?.role === 'Buyer'})
         })
 
+        // all sellers
+        app.get('/allsellers', async(req,res)=>{
+            const query = {role: 'Seller'}
+            const result = await usersCollection.find(query).toArray();
+            res.send(result);
+        })
+          // seller delete
+          app.delete('/sellerdelete/:id', async (req,res)=>{
+            const id = req.params.id;
+            console.log(id)
+            const filter = {_id: ObjectId(id)}
+            const result = await usersCollection.deleteOne(filter)
+            res.send(result)
+        })
+        // allbuyers
+        app.get('/allbuyers', async(req,res)=>{
+            const query = {role: 'Buyer'}
+            const result = await usersCollection.find(query).toArray();
+            res.send(result);
+        })
+        app.delete('/buyerdelete/:id', async (req,res)=>{
+            const id = req.params.id;
+            console.log(id)
+            const filter = {_id: ObjectId(id)}
+            const result = await usersCollection.deleteOne(filter)
+            res.send(result)
+        })
+
         // catagory product part
         app.post('/catagoriesProducts', async(req,res)=>{
             const catagoriesProducts = req.body;
@@ -93,7 +121,8 @@ async function run(){
             const result = await catagoriesProductCollection.deleteOne(filter)
             res.send(result)
         })
-
+      
+        
         // modal bookings
         app.post('/bookings', async(req,res)=>{
             const bookings = req.body;
