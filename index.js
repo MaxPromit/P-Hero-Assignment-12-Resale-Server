@@ -46,6 +46,25 @@ async function run(){
             const results = await usersCollection.insertOne(user)
             res.send(results)
         })
+        // is admin 
+        app.get('/users/admin/:email', async(req,res)=>{
+            const email = req.params.email;
+            const query = {email}
+            const user = await usersCollection.findOne(query);
+            res.send({isAdmin : user?.role === 'Admin'})
+        })
+        app.get('/users/seller/:email', async(req,res)=>{
+            const email = req.params.email;
+            const query = {email}
+            const user = await usersCollection.findOne(query);
+            res.send({isSeller : user?.role === 'Seller'})
+        })
+        app.get('/users/buyer/:email', async(req,res)=>{
+            const email = req.params.email;
+            const query = {email}
+            const user = await usersCollection.findOne(query);
+            res.send({isBuyer : user?.role === 'Buyer'})
+        })
 
         // catagory product part
         app.post('/catagoriesProducts', async(req,res)=>{
@@ -67,6 +86,13 @@ async function run(){
             res.send(result)
         })
 
+        app.delete('/myproducts/:id', async (req,res)=>{
+            const id = req.params.id;
+            console.log(id)
+            const filter = {_id: ObjectId(id)}
+            const result = await catagoriesProductCollection.deleteOne(filter)
+            res.send(result)
+        })
 
         // modal bookings
         app.post('/bookings', async(req,res)=>{
@@ -85,6 +111,24 @@ async function run(){
                 }
             }
             const result = await catagoriesProductCollection.updateOne(filter,updateDoc,option)
+            res.send(result)
+        })
+        // advirtised
+        app.put('/advirtised/:id', async(req,res)=>{
+            const id = req.params.id;
+            const filter = {_id: ObjectId(id)};
+            const option = {upsert: true}
+            const updateDoc = {
+                $set: {
+                    advertised: 'True'
+                }
+            }
+            const result = await catagoriesProductCollection.updateOne(filter,updateDoc,option)
+            res.send(result)
+        })
+        app.get('/advirtisedtrue', async(req,res)=>{
+            const query = {advertised: 'True'};
+            const result = await catagoriesProductCollection.find(query).toArray()
             res.send(result)
         })
     }
