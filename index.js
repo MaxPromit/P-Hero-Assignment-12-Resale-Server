@@ -94,7 +94,7 @@ async function run(){
                     sellerStatus: 'Verified'
                 }
             }
-            const result = await catagoriesProductCollection.updateOne(filter,updateDoc,option)
+            const result = await catagoriesProductCollection.updateMany(filter,updateDoc,option)
             const result2 = await usersCollection.updateOne(filter,updateDoc,option)
             res.send(result)
         })
